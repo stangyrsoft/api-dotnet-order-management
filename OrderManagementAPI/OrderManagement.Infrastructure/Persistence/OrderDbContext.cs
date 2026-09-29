@@ -2,10 +2,11 @@ using System.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OrderManagement.Domain.Models;
+using OrderManagement.Domain.Repositories;
 
 namespace OrderManagement.Infrastructure.Persistence;
 
-public sealed class OrderDbContext(DbContextOptions<OrderDbContext> options) : DbContext(options)
+public sealed class OrderDbContext(DbContextOptions<OrderDbContext> options) : DbContext(options), IUnitOfWork
 {
     private static readonly ValueConverter<bool, BitArray> ActiveConverter = new(
         value => new BitArray(new[] { value }),
