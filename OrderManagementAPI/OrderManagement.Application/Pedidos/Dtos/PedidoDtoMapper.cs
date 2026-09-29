@@ -17,6 +17,7 @@ internal static class PedidoDtoMapper
             pedido.Estado ?? string.Empty,
             pedido.Observacion,
             pedido.ClienteId,
+            pedido.Cliente?.DNI,
             clienteNombre,
             pedido.FechaPedido,
             pedido.TotalImporte,

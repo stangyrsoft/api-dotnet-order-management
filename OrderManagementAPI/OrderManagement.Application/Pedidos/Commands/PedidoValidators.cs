@@ -12,7 +12,9 @@ public sealed class PedidoInputValidator : AbstractValidator<PedidoInput>
         RuleFor(pedido => pedido.Estado)
             .NotEmpty()
             .MaximumLength(50);
-        RuleFor(pedido => pedido.ClienteId).GreaterThan(0);
+        RuleFor(pedido => pedido.Cliente)
+            .NotNull()
+            .SetValidator(new ClienteInputValidator());
         RuleFor(pedido => pedido.FechaPedido).NotEmpty();
         RuleFor(pedido => pedido.Detalles)
             .NotNull()
@@ -26,6 +28,21 @@ public sealed class PedidoInputValidator : AbstractValidator<PedidoInput>
                 detalle.RuleFor(item => item.ProductoId).GreaterThan(0);
                 detalle.RuleFor(item => item.Cantidad).GreaterThan(0);
             });
+    }
+}
+
+public sealed class ClienteInputValidator : AbstractValidator<ClienteInput>
+{
+    public ClienteInputValidator()
+    {
+        RuleFor(cliente => cliente.Dni)
+            .NotEmpty()
+            .Matches("^[0-9]{8}$")
+            .WithMessage("El DNI debe contener exactamente 8 dígitos.");
+        RuleFor(cliente => cliente.Nombre)
+            .NotEmpty()
+            .MaximumLength(100);
+        RuleFor(cliente => cliente.Apellido).MaximumLength(100);
     }
 }
 

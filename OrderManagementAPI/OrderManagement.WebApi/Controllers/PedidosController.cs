@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using OrderManagement.Application.Pedidos.Commands;
@@ -7,6 +8,7 @@ using OrderManagement.Application.Pedidos.Queries;
 namespace OrderManagement.WebApi.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/pedidos")]
 public sealed class PedidosController(IMediator mediator) : ControllerBase
 {

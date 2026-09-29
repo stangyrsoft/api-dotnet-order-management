@@ -12,6 +12,7 @@ public sealed record PedidoDto(
     string Estado,
     string? Observacion,
     long ClienteId,
+    string? ClienteDni,
     string? ClienteNombre,
     DateTime FechaPedido,
     decimal TotalImporte,

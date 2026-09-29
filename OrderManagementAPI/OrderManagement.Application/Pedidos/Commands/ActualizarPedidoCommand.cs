@@ -19,10 +19,11 @@ public sealed class ActualizarPedidoCommandHandler(
             ?? throw new NotFoundException($"No existe un pedido activo con ID {request.Id}.");
 
         var input = request.Pedido;
-        var cliente = await clientes.GetByIdAsync(input.ClienteId, cancellationToken);
-        if (cliente is null || !cliente.Activo)
+        var clienteInput = input.Cliente;
+        var cliente = await clientes.GetByDniAsync(clienteInput.Dni.Trim(), cancellationToken);
+        if (cliente is not null && !cliente.Activo)
         {
-            throw new NotFoundException($"No existe un cliente activo con ID {input.ClienteId}.");
+            throw new ConflictException("El DNI pertenece a un cliente inactivo.");
         }
 
         var existingOrder = await pedidos.GetByNumeroPedidoAsync(input.NumeroPedido.Trim(), cancellationToken);
@@ -45,11 +46,32 @@ public sealed class ActualizarPedidoCommandHandler(
 
         var now = DateTime.UtcNow;
         var actor = CrearPedidoCommandHandler.NormalizeAuditUser(request.UsuarioAuditoria);
+        var crearCliente = cliente is null;
+        cliente ??= new Cliente
+        {
+            DNI = clienteInput.Dni.Trim(),
+            Nombre = clienteInput.Nombre.Trim(),
+            Apellido = clienteInput.Apellido?.Trim(),
+            Direccion = clienteInput.Direccion?.Trim(),
+            Activo = true,
+            UsuarioCreacion = actor,
+            FechaCreacion = now
+        };
+
+        if (crearCliente)
+        {
+            await clientes.AddAsync(cliente, cancellationToken);
+            pedido.Cliente = cliente;
+        }
+        else
+        {
+            pedido.ClienteId = cliente.Id;
+        }
+
         pedido.NumeroPedido = input.NumeroPedido.Trim();
         pedido.Estado = input.Estado.Trim();
         pedido.Observacion = input.Observacion;
-        pedido.ClienteId = input.ClienteId;
-        pedido.FechaPedido = input.FechaPedido;
+        pedido.FechaPedido = DateTime.SpecifyKind(input.FechaPedido, DateTimeKind.Unspecified);
         pedido.TotalImporte = total;
         pedido.UsuarioModificacion = actor;
         pedido.FechaModificacion = now;

@@ -16,10 +16,11 @@ public sealed class CrearPedidoCommandHandler(
     public async Task<long> Handle(CrearPedidoCommand request, CancellationToken cancellationToken)
     {
         var input = request.Pedido;
-        var cliente = await clientes.GetByIdAsync(input.ClienteId, cancellationToken);
-        if (cliente is null || !cliente.Activo)
+        var clienteInput = input.Cliente;
+        var cliente = await clientes.GetByDniAsync(clienteInput.Dni.Trim(), cancellationToken);
+        if (cliente is not null && !cliente.Activo)
         {
-            throw new NotFoundException($"No existe un cliente activo con ID {input.ClienteId}.");
+            throw new ConflictException("El DNI pertenece a un cliente inactivo.");
         }
 
         var existingOrder = await pedidos.GetByNumeroPedidoAsync(input.NumeroPedido.Trim(), cancellationToken);
@@ -42,18 +43,43 @@ public sealed class CrearPedidoCommandHandler(
 
         var now = DateTime.UtcNow;
         var actor = NormalizeAuditUser(request.UsuarioAuditoria);
+        var crearCliente = cliente is null;
+        cliente ??= new Cliente
+        {
+            DNI = clienteInput.Dni.Trim(),
+            Nombre = clienteInput.Nombre.Trim(),
+            Apellido = clienteInput.Apellido?.Trim(),
+            Direccion = clienteInput.Direccion?.Trim(),
+            Activo = true,
+            UsuarioCreacion = actor,
+            FechaCreacion = now
+        };
+
+        if (crearCliente)
+        {
+            await clientes.AddAsync(cliente, cancellationToken);
+        }
+
         var pedido = new Pedido
         {
             NumeroPedido = input.NumeroPedido.Trim(),
             Estado = input.Estado.Trim(),
             Observacion = input.Observacion,
-            ClienteId = input.ClienteId,
-            FechaPedido = input.FechaPedido,
+            FechaPedido = DateTime.SpecifyKind(input.FechaPedido, DateTimeKind.Unspecified),
             TotalImporte = total,
             Activo = true,
             UsuarioCreacion = actor,
             FechaCreacion = now
         };
+
+        if (crearCliente)
+        {
+            pedido.Cliente = cliente;
+        }
+        else
+        {
+            pedido.ClienteId = cliente.Id;
+        }
 
         foreach (var detail in details)
         {

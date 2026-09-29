@@ -17,6 +17,7 @@ public sealed class ApiExceptionHandler(
         var problem = exception switch
         {
             ValidationException validationException => CreateValidationProblem(validationException),
+            InvalidCredentialsException => CreateProblem(StatusCodes.Status401Unauthorized, "Unauthorized", "Invalid email or password."),
             NotFoundException notFoundException => CreateProblem(StatusCodes.Status404NotFound, "Not found", notFoundException.Message),
             ConflictException conflictException => CreateProblem(StatusCodes.Status409Conflict, "Conflict", conflictException.Message),
             BusinessRuleException businessRuleException => CreateProblem(StatusCodes.Status400BadRequest, "Business rule violation", businessRuleException.Message),
