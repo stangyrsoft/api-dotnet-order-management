@@ -10,6 +10,8 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database");
+builder.Services.AddExceptionHandler<ApiExceptionHandler>();
+builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -24,6 +26,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

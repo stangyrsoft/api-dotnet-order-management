@@ -90,7 +90,7 @@ public sealed class OrderDbContext(DbContextOptions<OrderDbContext> options) : D
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("fk_detalle_producto");
             entity.HasOne(item => item.Pedido)
-                .WithMany()
+                .WithMany(pedido => pedido.Detalles)
                 .HasForeignKey(item => item.PedidoId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_detalle_pedido");

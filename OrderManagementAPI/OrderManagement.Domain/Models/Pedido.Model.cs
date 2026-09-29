@@ -27,5 +27,6 @@ namespace OrderManagement.Domain.Models
         public decimal TotalImporte { get; set; }
         [ForeignKey("ClienteId")]
         public Cliente? Cliente { get; set; }
+        public ICollection<PedidoDetalle> Detalles { get; set; } = new List<PedidoDetalle>();
     }
 }

@@ -14,4 +14,13 @@ public sealed class EfProductoRepository(OrderDbContext context)
             .Where(producto => producto.Activo)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Producto>> GetActivosByIdsAsync(
+        IReadOnlyCollection<long> ids,
+        CancellationToken cancellationToken = default)
+    {
+        return await Context.Productos.AsNoTracking()
+            .Where(producto => producto.Activo && ids.Contains(producto.Id))
+            .ToListAsync(cancellationToken);
+    }
 }
