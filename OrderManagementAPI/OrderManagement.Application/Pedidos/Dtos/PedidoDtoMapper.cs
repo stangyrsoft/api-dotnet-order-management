@@ -27,6 +27,14 @@ internal static class PedidoDtoMapper
                     detalle.Producto?.Nombre,
                     detalle.Cantidad,
                     detalle.PrecioUnitario))
-                .ToArray());
+                .ToArray(),
+            pedido.Cliente is null
+                ? null
+                : new PedidoClienteDto(
+                    pedido.Cliente.Id,
+                    pedido.Cliente.DNI ?? string.Empty,
+                    pedido.Cliente.Nombre ?? string.Empty,
+                    pedido.Cliente.Apellido,
+                    pedido.Cliente.Direccion));
     }
 }

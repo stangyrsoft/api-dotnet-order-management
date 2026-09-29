@@ -6,6 +6,13 @@ public sealed record PedidoDetalleDto(
     int Cantidad,
     decimal PrecioUnitario);
 
+public sealed record PedidoClienteDto(
+    long Id,
+    string Dni,
+    string Nombre,
+    string? Apellido,
+    string? Direccion);
+
 public sealed record PedidoDto(
     long Id,
     string NumeroPedido,
@@ -16,4 +23,5 @@ public sealed record PedidoDto(
     string? ClienteNombre,
     DateTime FechaPedido,
     decimal TotalImporte,
-    IReadOnlyList<PedidoDetalleDto> Detalles);
+    IReadOnlyList<PedidoDetalleDto> Detalles,
+    PedidoClienteDto? Cliente);
